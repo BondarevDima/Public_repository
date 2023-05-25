@@ -99,7 +99,7 @@ const oneTapObj = Connect.floatingOneTapAuth(...);
 oneTapObj.destroy();
 ```
 
-Использования метода **Connect.buttonOneTapAuth**:
+Пример использования метода **Connect.buttonOneTapAuth**:
 ```
 // Connect.buttonOneTapAuth - окно с кнопкой быстрой авторизации, которое
 можно
