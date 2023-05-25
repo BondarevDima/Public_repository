@@ -38,7 +38,7 @@ Connect.redirectAuth({ url: string, state?: string, screen?: 'phone' });
 Connect.redirectAuth({ ..., action?: AuthAction });
 
 ```
-В ответ VK SDK передаст результат авторизации, данные пользователя (идентификатор, первую букву фамилии, имя, аватар и маскированный номер телефона) и Silent token (параметр token).
+Ответом будет результат авторизации, данные пользователя и token.
 Ответ будет выглядеть следующим образом:
 ```
 payload:
@@ -103,8 +103,7 @@ oneTapObj.destroy();
 ```
 // Connect.buttonOneTapAuth - окно с кнопкой быстрой авторизации, которое
 можно
-// вставить в любое место разметки. Во втором параметре доступно ещё 2
-свойства:
+// вставить в любое место разметки. Во втором параметре доступно ещё 2 свойства:
 // container - html элементы в который будет вставлено окно с кнопкой, и
 options -
 // ButtonOneTapAuthOptions, объект в этом параметре управляет показом
@@ -171,44 +170,173 @@ console.log('Policy was accepted');
 
 ```Connect.userDataPolicy(uuid: string): VKDataPolicyResult```
 ## Описание типов 
-Объект VKSilentAuthPayload
+Параметры **VKSilentAuthPayload**
+
 | Параметр | Тип | Описание |
 | ---------- | ------- | ------- |
-|auth|number |Признак активной сессии с ВКонтакте на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
-|token|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token|
-|ttl|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|type|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|user|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|id|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|first_name|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|last_name|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|avatar|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |\
-|phone|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|uuid|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|oauthProvider?|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
-|external_user?|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token |
+|auth|number|Признак активной сессии на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
+|token|string|Токен для совершения действий от лица пользователя|
+|ttl|string| Существование токена в секундах |
+|type|string|Тип токена|
+|user|string|Данные пользователя |
+|id|number|Уникальный номер пользователя |
+|first_name|string|Имя пользователя|
+|last_name|string|Фамилия пользователя|
+|avatar|string|Аватар пользователя |
+|phone|string|Мобильный телефон пользователя |
+|uuid|string|Уникальный идентификатор, который выдается при обращении |
 
-Объект VKAuthSuccessResult
+```
+type VKSilentAuthPayload = {
+auth: number;
+token: string;
+ttl: number;
+type: string;
+user: {
+id: number;
+first_name: string;
+last_name: string;
+avatar: string;
+phone: string;
+};
+uuid: string;
+oauthProvider?: string;
+external_user?: ExternalUser;
+};
+```
+
+Параметры **VKAuthSuccessResult**
+
 | Параметр | Тип | Описание |
 | ---------- | ------- | ------- |
-|auth|number |Признак активной сессии с ВКонтакте на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
-|token|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token|
+|provider|object|Перенаправление на ресурс|
+|payload|object|Передаваемые данные|
 
-Объект ExternalUser
+```
+type VKAuthSuccessResult = {
+provider: 'vk';
+payload: VKSilentAuthPayload;
+};
+```
+
+Параметры **ExternalUser**
+
 | Параметр | Тип | Описание |
 | ---------- | ------- | ------- |
-|auth|number |Признак активной сессии с ВКонтакте на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
-|token|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token|
+|first_name|string|Имя пользователя|
+|last_name|string|Фамилия пользователя|
+|phone|string |Мобильный телефон пользователя|
 
-Объект ConnectAuthError
+```
+type ExternalUser = {
+id?: string;
+avatar?: string;
+first_name: string;
+last_name: string;
+phone: string;
+borderColor?: string;
+payload?: Record<string, any>;
+};
+```
+
+Параметры **ConnectAuthError**
+
 | Параметр | Тип | Описание |
 | ---------- | ------- | ------- |
-|auth|number |Признак активной сессии с ВКонтакте на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
-|token|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token|
+|code|object|Номер ошибки|
+|reason?|string|Причина возникновения ошибки|
 
-Объект RedirectAuthParams
-| Параметр | Тип | Описание |
-| ---------- | ------- | ------- |
-|auth|number |Признак активной сессии с ВКонтакте на устройстве пользователя.Возможные значения: 0 — сессии нет и 1 — сессия есть|
-|token|string |Токен для совершения действий от лица пользователя. В данном случае Silent token, который необходимо обменять на Access token|
+```
+type ConnectAuthError = {
+code: ERROR_CODES;
+reason?: string;
+};
+```
 
+## Реализация
+```
+interface VKOAuthCallback {
+provider: 'fb' | 'google';
+};
+type RedirectAuthParams = {
+url: string;
+state?: string;
+screen?: 'phone';
+action?: AuthAction;
+source?: string;
+};
+interface AuthWithUser {
+name: 'login_with_user';
+token: string;
+}
+interface ExtendTokenParams {
+name: 'extend_token';
+token: string;
+params: {
+extend_token_hash: string;
+  };
+}
+type AuthAction = ExtendTokenParams | AuthWithUser;
+```
+```
+type FloatingOneTapAuthParams = {
+callback: (result: VKAuthButtonCallbackResult) => void;
+};
+interface ButtonOneTapAuthParams extends FloatingOneTapAuthParams {
+container?: HTMLElement | null;
+options?: ButtonOneTapAuthOptions;
+}
+// default - стандартное отображение "Продолжить как ..."
+// name_phone - отображение в 2 строки. Верхняя строка - "Продолжить как
+...".
+// Нижняя строка - телефон пользователя.
+// phone_name - аналогично name_phone, только телефон - в верхней строке.
+// langId: доступные константы языков
+// const LANGUAGES = {
+// RUS: 0,
+// UKR: 1,
+// ENG: 3,
+// SPA: 4,
+// GERMAN: 6,
+// POL: 15,
+// FRA: 16,
+// TURKEY: 82,
+// };
+type ButtonOneTapAuthDisplayModes = 'default' | 'name_phone' |
+'phone_name';
+type ButtonOneTapSkin = 'primary' | 'flat';
+type ButtonOneTapAuthOptions = {
+showAgreements?: boolean | number;
+showAlternativeLogin?: boolean | number;
+showAgreementsDialog?: boolean | number;
+displayMode?: ButtonOneTapAuthDisplayModes;
+buttonSkin?: ButtonOneTapSkin;
+langId?: number;
+};
+type AuthButtonType = 'floating' | 'button';
+type AuthButtonParams = FloatingOneTapAuthParams | ButtonOneTapAuthParams;
+```
+
+```
+type VKAuthButtonResult = {
+type: OneTapAuthEventsSDK | FloatingOneTapAuthEventsSDK |
+ButtonOneTapAuthEventsSDK | DataPolicyEventsSDK;
+provider?: 'vk';
+payload?: VKSilentAuthPayload | VKDataPolicyPayload | { uuid: string };
+};
+type VKAuthButtonError = {
+type: OneTapAuthEventsSDK;
+payload: VKAuthButtonErrorPayload;
+};
+type VKAuthButtonCallbackResult = VKAuthButtonResult | VKAuthButtonError;
+export type VKOneTapAuthResult = {
+destroy: () => void;
+getFrame: () => HTMLIFrameElement | null;
+authReadyPromise: Promise<OneTapAuthEventsSDK>;
+};
+export type VKOneTapAuthButtonResult = {
+destroy: () => void;
+getFrame: () => HTMLIFrameElement | null;
+authReadyPromise: Promise<OneTapAuthEventsSDK>;
+};
+```
