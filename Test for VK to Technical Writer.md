@@ -3,19 +3,12 @@
 с помощью VK ID. 
 ## Начало работы
 Для установки VK SDK необходимо воспользоваться менеджером пакетов.
-Для этого в консоли выполните одну из команд, показанную ниже, в зависимости от используемо
-<details>
-<summary>npm</summary>
+Для этого в консоли выполните одну из команд, показанную ниже, в зависимости от используемого.
 
-```
-npm install @vkontakte/superappkit
-```
-</details>
-
-| Платформа | Команда |
+| Менеджер пакетов | Команда |
 | ---------- | ------- |
-|Node.js  | ```npm install @vkontakte/superappkit ``` |
-|JavaScript  | ```yarn add @vkontakte/superappkit```  |
+|npm | ```npm install @vkontakte/superappkit ``` |
+|yarn | ```yarn add @vkontakte/superappkit```  |
 
 Также необходимо импортировать модуль **Connect** для настройки.
 Для этого в консоли необходимо выполнить команду:
@@ -44,4 +37,93 @@ import { Connect } from '@vkontakte/superappkit';
 Connect.redirectAuth({ url: string, state?: string, screen?: 'phone' });
 Connect.redirectAuth({ ..., action?: AuthAction });
 
+```
+В ответ VK SDK передаст вам результат авторизации, данные пользователя (идентификатор, первую букву фамилии, имя, аватар и маскированный номер телефона) и Silent token (параметр token).
+
+Для быстрой авторизации и размещения его окна на странице используется метод **Connect.oneTapAuth** и его аналоги: **Connect.floatingOneTapAuth** и **Connect.buttonOneTapAuth**.
+Метод **Connect.oneTapAuth** в первое значение аргумента AuthButtonType принимает два значения *floating* и *button*. При значении *floating* окно авторизации размещается в правом верхнем углу 
+в зафиксированном положении, а при значении аргумента *button* окно с кнопкой можно разместить в любом месте. Второй аргумент options представляет собой объект типа AuthButtonParams с
+обязательным полем callback в который нужно передать функцию обработчик разных событий приходящих из SDK (см. ConnectEvents тип). В методе **Connect.buttonOneTapAuth** во втором
+параметре доступны 2 свойства для управления отображения элементов.
+
+Пример использования метода **Connect.floatingOneTapAuth**:
+```
+// Connect.floatingOneTapAuth - отображение окна быстрой авторизации в
+правом
+// верхнем углу экрана в виде position: fixed элемента.
+// Аналог метода Connect.oneTapAuth('floating', ...)
+Connect.floatingOneTapAuth({
+callback: function(evt: any) {
+switch (type) {
+case ConnectEvents.OneTapAuthEventsSDK.LOGIN_SUCCESS:
+if (evt.payload.auth) {
+return onAuthUser(evt);
+} else {
+console.error(evt);
+}
+break;
+// Для этих событий нужно открыть полноценный VK ID чтобы
+// пользователь дорегистрировался или свалидировал телефон
+case ConnectEvents.OneTapAuthEventsSDK.FULL_AUTH_NEEDED:
+case ConnectEvents.OneTapAuthEventsSDK.PHONE_VALIDATION_NEEDED:
+return Connect.redirectAuth({ screen: 'phone', url: 'https://...'
+});
+}
+},
+});
+// Скрыть окно можно с помощью метода VKOneTapAuthResult.destroy
+const oneTapObj = Connect.floatingOneTapAuth(...);
+...
+oneTapObj.destroy();
+```
+Использования метода **Connect.buttonOneTapAuth**:
+```
+// Connect.buttonOneTapAuth - окно с кнопкой быстрой авторизации, которое
+можно
+// вставить в любое место разметки. Во втором параметре доступно ещё 2
+свойства:
+// container - html элементы в который будет вставлено окно с кнопкой, и
+options -
+// ButtonOneTapAuthOptions, объект в этом параметре управляет показом
+элементов
+// внутри окна с кнопкой. Аналог метода - Connect.oneTapAuth('button',
+...)
+const buttonOneTap = Connect.buttonOneTapAuth({
+callback: function(evt: any) {
+const type = evt.type;
+if (!type) {
+return;
+}
+switch (type) {
+...
+case ConnectEvents.OneTapAuthEventsSDK.LOGIN_SUCCESS:
+return onAuthUser(evt);
+// Для событий PHONE_VALIDATION_NEEDED и FULL_AUTH_NEEDED
+// нужно открыть полноценный VK ID чтобы пользователь
+// дорегистрировался или свалидировал телефон
+case ConnectEvents.OneTapAuthEventsSDK.FULL_AUTH_NEEDED:
+case ConnectEvents.OneTapAuthEventsSDK.PHONE_VALIDATION_NEEDED:
+case ConnectEvents.ButtonOneTapAuthEventsSDK.SHOW_LOGIN:
+return Connect.redirectAuth({ screen: 'phone', url: 'https://...'
+});
+case ConnectEvents.ButtonOneTapAuthEventsSDK.SHOW_LOGIN_OPTIONS:
+// Параметр screen: phone позволяет сразу открыть окно ввода
+телефона
+// в VK ID
+return Connect.redirectAuth({ screen: 'phone', source: type
+}).then(onAuthUser, () => alert('Ошибка!'));
+}
+return;
+},
+options: {
+showAlternativeLogin: true,
+showAgreements: false,
+showAgreementsDialog: true,
+displayMode: 'default',
+},
+});
+if (buttonOneTap) {
+document.getElementById('someHtmlElementId').appendChild(buttonOneTap.getF
+rame());
+}
 ```
