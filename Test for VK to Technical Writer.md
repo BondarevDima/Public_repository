@@ -1,8 +1,8 @@
 # Авторизация пользователя в Web с помощью VK ID
-В данной статье мы рассмотрим, каким образом можно реализовать авторизацию пользователя 
+  В данной статье мы рассмотрим, каким образом можно реализовать авторизацию пользователя 
 с помощью VK ID. 
 ## Начало работы
-Для установки VK SDK необходимо воспользоваться менеджером пакетов.
+  Для установки VK SDK необходимо воспользоваться менеджером пакетов.
 Для этого в консоли выполните одну из команд, показанную ниже, в зависимости от используемого.
 
 | Менеджер пакетов | Команда |
@@ -16,7 +16,7 @@
 import { Connect } from '@vkontakte/superappkit';
 ```
 ## Настройка VK ID
-Возможность авторизации через VK ID в приложении будет доступна после настройки способа авторизации.
+  Возможность авторизации через VK ID в приложении будет доступна после настройки способа авторизации.
 Для этого имеется несколько методов, вызываемых из модуля **Connect**.
 Основным способом авторизации является метод **Connect.redirectAuth**.
 ```
@@ -38,9 +38,29 @@ Connect.redirectAuth({ url: string, state?: string, screen?: 'phone' });
 Connect.redirectAuth({ ..., action?: AuthAction });
 
 ```
-В ответ VK SDK передаст вам результат авторизации, данные пользователя (идентификатор, первую букву фамилии, имя, аватар и маскированный номер телефона) и Silent token (параметр token).
+В ответ VK SDK передаст результат авторизации, данные пользователя (идентификатор, первую букву фамилии, имя, аватар и маскированный номер телефона) и Silent token (параметр token).
+Ответ будет выглядеть следующим образом:
+```
+payload:
+{
+auth: number;
+token: string;
+ttl: number;
+type: string;
+user: {
+id: number;
+first_name: string;
+last_name: string;
+avatar: string;
+phone: string;
+};
+uuid: string;
+oauthProvider?: string;
+external_user?: ExternalUser;
+};
+```
 
-Для быстрой авторизации и размещения его окна на странице используется метод **Connect.oneTapAuth** и его аналоги: **Connect.floatingOneTapAuth** и **Connect.buttonOneTapAuth**.
+  Для быстрой авторизации и размещения его окна на странице используется метод **Connect.oneTapAuth** и его аналоги: **Connect.floatingOneTapAuth** и **Connect.buttonOneTapAuth**.
 Метод **Connect.oneTapAuth** в первое значение аргумента AuthButtonType принимает два значения *floating* и *button*. При значении *floating* окно авторизации размещается в правом верхнем углу 
 в зафиксированном положении, а при значении аргумента *button* окно с кнопкой можно разместить в любом месте. Второй аргумент options представляет собой объект типа AuthButtonParams с
 обязательным полем callback в который нужно передать функцию обработчик разных событий приходящих из SDK (см. ConnectEvents тип). В методе **Connect.buttonOneTapAuth** во втором
@@ -73,9 +93,10 @@ return Connect.redirectAuth({ screen: 'phone', url: 'https://...'
 });
 // Скрыть окно можно с помощью метода VKOneTapAuthResult.destroy
 const oneTapObj = Connect.floatingOneTapAuth(...);
-...
+
 oneTapObj.destroy();
 ```
+
 Использования метода **Connect.buttonOneTapAuth**:
 ```
 // Connect.buttonOneTapAuth - окно с кнопкой быстрой авторизации, которое
@@ -107,8 +128,7 @@ case ConnectEvents.ButtonOneTapAuthEventsSDK.SHOW_LOGIN:
 return Connect.redirectAuth({ screen: 'phone', url: 'https://...'
 });
 case ConnectEvents.ButtonOneTapAuthEventsSDK.SHOW_LOGIN_OPTIONS:
-// Параметр screen: phone позволяет сразу открыть окно ввода
-телефона
+// Параметр screen: phone позволяет сразу открыть окно ввода телефона
 // в VK ID
 return Connect.redirectAuth({ screen: 'phone', source: type
 }).then(onAuthUser, () => alert('Ошибка!'));
@@ -123,7 +143,33 @@ displayMode: 'default',
 },
 });
 if (buttonOneTap) {
-document.getElementById('someHtmlElementId').appendChild(buttonOneTap.getF
-rame());
+document.getElementById('someHtmlElementId').appendChild(buttonOneTap.getFrame());
 }
 ```
+Метод **Connect.userDataPolicy** необходим для отображения модального попапа (содержимое на странице будет недоступно для пользователя до тех пор, пока он не будет явно взаимодействовать с оверлеем).
+Пример использования метода **Connect.userDataPolicy**:
+```
+// Connect.userDataPolicy - отображение модального попапа с политиками и
+// передаваемыми данными
+Connect.userDataPolicy(...)
+.show()
+.then(() => {
+console.log('Policy was accepted');
+});
+```
+## Доступные методы API
+
+```Connect.redirectAuth(params: RedirectAuthParams): void;```
+
+```Connect.oneTapAuth(oneTapAuthType: AuthButtonType, params: AuthButtonParams): VKOneTapAuthResult | null;```
+
+```Connect.buttonOneTapAuth(params: ButtonOneTapAuthParams): VKOneTapAuthButtonResult | null;```
+
+```Connect.floatingOneTapAuth(params: FloatingOneTapAuthParams): VKOneTapAuthResult | null;```
+
+```Connect.userDataPolicy(uuid: string): VKDataPolicyResult```
+## Описание типов
+| Менеджер пакетов | Команда | Команда |
+| ---------- | ------- | ------- |
+|npm | ```npm install @vkontakte/superappkit ``` |npm |
+|yarn | ```yarn add @vkontakte/superappkit```  |npm |
